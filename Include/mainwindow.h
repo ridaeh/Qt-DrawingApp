@@ -17,6 +17,7 @@
 #include <QFile>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
+#include <QFileDialog>
 #include <QDir>
 #include "enums.h"
 #include "scene_area.h"
@@ -27,14 +28,13 @@ Q_OBJECT
   public:
    MainWindow(QWidget *parent = 0);
   private:
-   SceneArea* _area; 
+   SceneArea* _area;
    void _createMenus(void);
    void _createToolbars(void);
    void _createActions(void);
    void _connectActions(void);
    void _connectSignals(void);
-   int _saveFile(void);
-   int _openFile(void);
+
 
    QMenu *_fileMenu, *_toolMenu, *_editMenu, *_helpMenu,*_styleMenu;
    QToolBar *_toolBar;
@@ -46,6 +46,8 @@ Q_OBJECT
    QSignalMapper *_signalMapper;
   private slots :
      void _newFile();
+     int _saveFile(void);
+     int _openFile(void);
      void _exit();
      void _about();
      void _aboutQt();
@@ -53,4 +55,3 @@ Q_OBJECT
    void toolMapped(int digit);
 };
 #endif
-

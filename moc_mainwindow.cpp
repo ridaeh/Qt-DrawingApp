@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -34,16 +34,19 @@ static const uint qt_meta_data_MainWindow[] = {
 
  // slots: signature, parameters, type, tag, flags
       34,   11,   11,   11, 0x08,
-      45,   11,   11,   11, 0x08,
-      53,   11,   11,   11, 0x08,
-      62,   11,   11,   11, 0x08,
+      49,   11,   45,   11, 0x08,
+      61,   11,   45,   11, 0x08,
+      73,   11,   11,   11, 0x08,
+      81,   11,   11,   11, 0x08,
+      90,   11,   11,   11, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0digit\0toolMapped(int)\0"
-    "_newFile()\0_exit()\0_about()\0_aboutQt()\0"
+    "_newFile()\0int\0_saveFile()\0_openFile()\0"
+    "_exit()\0_about()\0_aboutQt()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -54,9 +57,13 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->toolMapped((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 1: _t->_newFile(); break;
-        case 2: _t->_exit(); break;
-        case 3: _t->_about(); break;
-        case 4: _t->_aboutQt(); break;
+        case 2: { int _r = _t->_saveFile();
+            if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
+        case 3: { int _r = _t->_openFile();
+            if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
+        case 4: _t->_exit(); break;
+        case 5: _t->_about(); break;
+        case 6: _t->_aboutQt(); break;
         default: ;
         }
     }
@@ -94,9 +101,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 7)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 7;
     }
     return _id;
 }

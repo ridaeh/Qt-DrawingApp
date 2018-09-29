@@ -39,23 +39,29 @@ void MainWindow::_createToolbars(void) {
 }
 
 void MainWindow::_createActions(void) {
-  // Create File Action 
+  // Create File Action
  _newAction = new QAction( QIcon(":/Images/new.png"), tr("&New..."), this );
  _newAction->setShortcut( tr("Ctrl+N") );
  _newAction->setToolTip( tr("New Tooltip") );
  _newAction->setStatusTip( tr("New Status") );
  _newAction->setData(QVariant("New data to process"));
 
- _openAction = new QAction(tr("Open"), this);
+ _openAction = new QAction(QIcon(":/Images/open.png"),tr("&Open"), this);
  _openAction->setShortcut(tr("Ctrl+O"));
+ _openAction->setToolTip( tr("Open existing Tooltip") );
+ _openAction->setStatusTip( tr("Open Status") );
+ _openAction->setData(QVariant("Existing data to process"));
 
- _saveAction = new QAction(tr("Save"), this);
+ _saveAction = new QAction(QIcon(":/Images/save.png"),tr("Save"), this);
  _saveAction->setShortcut(tr("Ctrl+S"));
+ _saveAction->setToolTip( tr("Save Tooltip") );
+ _saveAction->setStatusTip( tr("Save Status") );
+ _saveAction->setData(QVariant("Saving data to process"));
 
  _saveAsAction = new QAction(tr("Save as"), this);
  _saveAsAction->setShortcut(tr("Ctrl+D"));
 
- _exitAction = new QAction(tr("exit"), this);
+ _exitAction = new QAction(tr("Exit"), this);
  _exitAction->setShortcut(tr("Ctrl+Q"));
 
  //Create Help Action
@@ -74,7 +80,7 @@ void MainWindow::_createActions(void) {
   _rectangleAct= new QAction(tr("&Rectangle"), this);
   _elipseAct= new QAction(tr("&Elipse"), this);
   _polygonAct= new QAction(tr("&Polygon"), this);
-  _textAct= new QAction(tr("&Line"), this);
+  _textAct= new QAction(tr("&Text"), this);
 
   _rectangleAct->setCheckable(true);
   _elipseAct->setCheckable(true);
@@ -88,34 +94,38 @@ void MainWindow::_connectActions(void) {
  _fileMenu->addAction( _newAction );
  _fileMenu->addAction( _openAction );
  _fileMenu->addAction( _saveAction );
- _fileMenu->addAction( _saveAsAction );
+// _fileMenu->addAction( _saveAsAction );
  _fileMenu->addAction( _exitAction );
  _helpMenu->addAction(_aboutAction);
  _helpMenu->addAction(_aboutQtAction);
 
  _toolBar->addAction(_newAction);
+  _toolBar->addAction(_openAction);
+   _toolBar->addAction(_saveAction);
 
 
- _toolsQag->addAction(_freehandAct);
+ //_toolsQag->addAction(_freehandAct);
  _toolsQag->addAction(_lineAct);
  _toolsQag->addAction(_rectangleAct);
  _toolsQag->addAction(_elipseAct);
- _toolsQag->addAction(_polygonAct);
- _toolsQag->addAction(_textAct);
+// _toolsQag->addAction(_polygonAct);
+// _toolsQag->addAction(_textAct);
 
- _toolMenu->addAction(_freehandAct);
+// _toolMenu->addAction(_freehandAct);
  _toolMenu->addAction(_lineAct);
  _toolMenu->addAction(_rectangleAct);
  _toolMenu->addAction(_elipseAct);
- _toolMenu->addAction(_polygonAct);
- _toolMenu->addAction(_textAct);
+ //_toolMenu->addAction(_polygonAct);
+ //_toolMenu->addAction(_textAct);
 }
 
 void MainWindow::_connectSignals(void) {
  connect( _newAction, SIGNAL(triggered( )), this, SLOT(_newFile( )) );
+ connect( _saveAction, SIGNAL(triggered( )), this, SLOT(_saveFile( )) );
+ connect( _openAction, SIGNAL(triggered( )), this, SLOT(_openFile( )) );
  connect(_aboutAction, SIGNAL(triggered()), this, SLOT(_about()));
  connect(_aboutQtAction, SIGNAL(triggered()), this, SLOT(_aboutQt()));
- 
+
  connect(_freehandAct,SIGNAL(activated()),_signalMapper, SLOT(map()));
  connect(_lineAct,SIGNAL(activated()),_signalMapper, SLOT(map()));
  connect(_rectangleAct,SIGNAL(activated()),_signalMapper, SLOT(map()));
@@ -148,24 +158,24 @@ void MainWindow::_newFile(void) {
        qDebug() << str ;
        statusBar()->showMessage(str);
 
-       for (int i =0; i< _area->items().size();i++) { 
+       for (int i =0; i< _area->items().size();i++) {
            qDebug() <<  "scene.items() :" <<_area->items().value(i)->type();
            qDebug() << _area->items().value(i)->x();
            qDebug() << _area->items().value(i)->pos();
            qDebug() << _area->items().value(i)->scenePos();
       //     qDebug() << _area->mapToScene(_area->items().value(i)->pos());
-         }    
-        
+         }
+
           _area->clearScene();
-        
+
        break;
        }
    case QMessageBox::Cancel:
-      
+
        break;
 
   }
- 
+
 }
 
 void MainWindow::_exit(void) {
@@ -184,11 +194,15 @@ void MainWindow::_about() {
 void MainWindow::_aboutQt() {
  qDebug()<< "MainWindow::_aboutQt()" ;
  QMessageBox::aboutQt( this, "A propos de Qt");
- 
+
 }
 
 int MainWindow::_saveFile(){
-    QString fileName(QDir::currentPath().append("//scene.xml"));
+   QString fileName = QFileDialog::getSaveFileName(this,
+     tr("Save File"),"", tr("XML Files (*.xml);;All Files (*)"));
+
+     if (!fileName.endsWith(".xml"))
+         fileName += ".xml";
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly))
     {
@@ -202,7 +216,7 @@ int MainWindow::_saveFile(){
     xmlWriter.writeAttribute("version", "v1.0");
     xmlWriter.writeStartElement("GraphicsItemList");
     qreal width, height, x, y;
-    for (int i =0; i< _area->items().size();i++) { 
+    for (int i =0; i< _area->items().size();i++) {
             xmlWriter.writeStartElement("GraphicsItem");
             int number=_area->items().value(i)->type();
             xmlWriter.writeAttribute("type", QString::number(number));
@@ -216,31 +230,58 @@ int MainWindow::_saveFile(){
                   y = line->line().y1();
                   width = line->line().x2();
                   height = line->line().y2();
-                  xmlWriter.writeAttribute("xd", QString::number(x));
-                  xmlWriter.writeAttribute("yd", QString::number(y));
-                  xmlWriter.writeAttribute("xf", QString::number(width));
-                  xmlWriter.writeAttribute("yf", QString::number(height));
+                  xmlWriter.writeAttribute("x", QString::number(x));
+                  xmlWriter.writeAttribute("y", QString::number(y));
+                  xmlWriter.writeAttribute("w", QString::number(width));
+                  xmlWriter.writeAttribute("h", QString::number(height));
                   xmlWriter.writeAttribute("style", QString::number(line->pen().style()));
                 }
                  break;
               case 3 :
                   {
-                  qDebug() << "Line";
+                  qDebug() << "Rectangle";
                   QGraphicsRectItem *rect;
                   rect = qgraphicsitem_cast<QGraphicsRectItem*>(_area->items().value(i));
                   x = rect->rect().x();
                   y = rect->rect().y();
                   width = rect->rect().width();
                   height = rect->rect().height();
-                  xmlWriter.writeAttribute("xd", QString::number(x));
-                  xmlWriter.writeAttribute("yd", QString::number(y));
-                  xmlWriter.writeAttribute("xf", QString::number(width));
-                  xmlWriter.writeAttribute("yf", QString::number(height));
+                  xmlWriter.writeAttribute("x", QString::number(x));
+                  xmlWriter.writeAttribute("y", QString::number(y));
+                  xmlWriter.writeAttribute("w", QString::number(width));
+                  xmlWriter.writeAttribute("h", QString::number(height));
                   xmlWriter.writeAttribute("style", QString::number(rect->pen().style()));
                 }
                  break;
+              case 8:{
+                qDebug() << "Text";
+                QGraphicsTextItem *text;
+                text = qgraphicsitem_cast<QGraphicsTextItem*>(_area->items().value(i));
+                x = text->x();
+                y = text->y();
+                QString txt=text->toPlainText();
+                xmlWriter.writeAttribute("x", QString::number(x));
+                xmlWriter.writeAttribute("y", QString::number(y));
+                xmlWriter.writeAttribute("txt", txt);
 
-              
+
+              }
+              break;
+              case 4:{
+                qDebug() << "Ellipse";
+                QGraphicsEllipseItem *ellipse;
+                ellipse = qgraphicsitem_cast<QGraphicsEllipseItem*>(_area->items().value(i));
+                x = ellipse->rect().x();
+                y = ellipse->rect().y();
+                width = ellipse->rect().width();
+                height = ellipse->rect().height();
+                xmlWriter.writeAttribute("x", QString::number(x));
+                xmlWriter.writeAttribute("y", QString::number(y));
+                xmlWriter.writeAttribute("w", QString::number(width));
+                xmlWriter.writeAttribute("h", QString::number(height));
+                xmlWriter.writeAttribute("style", QString::number(ellipse->pen().style()));
+              }
+              break;
       }
             xmlWriter.writeEndElement(); // GraphicsItem
     }
@@ -251,41 +292,64 @@ int MainWindow::_saveFile(){
 }
 
 int MainWindow::_openFile(void){
-    QString fileReadName(QDir::currentPath().append("//scene.xml"));
+    QString fileReadName = QFileDialog::getOpenFileName(this,
+    tr("Open File"),"", tr("XML Files (*.xml);;All Files (*)"));
+
     QFile fileRead(fileReadName);
     if (!fileRead.open(QIODevice::ReadOnly))
     {
             return -1;
     }
-   
+
    QXmlStreamReader xmlReader;
-   QFile fileread("scene-read.xml");
-   qDebug() << "read";
-   if (!fileread.open(QFile::ReadOnly | QFile::Text)) { 
-     qDebug() << "Error: Cannot read file ";
-   }
-   xmlReader.setDevice(&fileread);
+   xmlReader.setDevice(&fileRead);
    while (!xmlReader.atEnd()) {
      if(xmlReader.isStartElement()) {
-       if ( xmlReader.name()== "GraphicsItem") {  
-     qDebug() << "graphics";
-     qDebug() << xmlReader.attributes().value("type").toString().toInt();
-     if (xmlReader.attributes().value("type").toString().toInt() == 6 ) {
-       int x=xmlReader.attributes().value("x").toString().toInt();
-       int y=xmlReader.attributes().value("y").toString().toInt();
-       int w=xmlReader.attributes().value("w").toString().toInt();
-       int h=xmlReader.attributes().value("h").toString().toInt();
-       int style=xmlReader.attributes().value("style").toString().toInt();
-       qDebug() << "read" << x << y<< w << h << style;
-       QGraphicsLineItem *ligne = _area->addLine(x,y,w,h);
-       if (style == 0) {
-         ligne->pen().setStyle(Qt::DashDotDotLine);
+       if ( xmlReader.name()== "GraphicsItem") {
+           qDebug() << "graphics";
+           qDebug() << xmlReader.attributes().value("type").toString().toInt();
+
+             int x=xmlReader.attributes().value("x").toString().toInt();
+             int y=xmlReader.attributes().value("y").toString().toInt();
+             int w=xmlReader.attributes().value("w").toString().toInt();
+             int h=xmlReader.attributes().value("h").toString().toInt();
+             int style=xmlReader.attributes().value("style").toString().toInt();
+             qDebug() << "read" << x << y<< w << h << style;
+             switch (xmlReader.attributes().value("type").toString().toInt()) {
+                 case 6:{
+                     QGraphicsLineItem *ligne = _area->addLine(x,y,w,h);
+                     if (style == 0) {
+                       ligne->pen().setStyle(Qt::DashDotDotLine);
+                     }
+                    }
+                    break;
+                  case 3:
+                  {
+                      QGraphicsRectItem *rect = _area->addRect(x,y,w,h);
+                      if (style == 0) {
+                        rect->pen().setStyle(Qt::DashDotDotLine);
+                      }
+                  }
+                  break;
+                  case 8:{
+                    QGraphicsTextItem * text= _area->addText(xmlReader.attributes().value("txt").toString());
+                    text->setPos(x,y);
+                    text->setVisible(true);
+                  }break;
+                  case 4:{
+                    QGraphicsEllipseItem *ellipse = _area->addEllipse(x,y,w,h);
+                    if (style == 0) {
+                      ellipse->pen().setStyle(Qt::DashDotDotLine);
+                    }
+                  }break;
+             }
+
+             _area->update();
+           }
        }
 
-     }
-       }
-     }
       xmlReader.readNext();
   }
+  fileRead.close();
   return 0;
 }

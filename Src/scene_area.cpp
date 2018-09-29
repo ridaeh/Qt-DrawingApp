@@ -16,8 +16,8 @@ SceneArea::SceneArea(qreal x, qreal y, qreal width, qreal height, QObject * pare
 
 void SceneArea::mousePressEvent(QGraphicsSceneMouseEvent* evt) {
   qDebug() << "Scene::mousePressEvent(void)";
-  qDebug() <<  "evt->pos() : " << evt->pos(); 
-  qDebug() <<  "evt->scenePos() : " <<  evt->scenePos(); 
+  qDebug() <<  "evt->pos() : " << evt->pos();
+  qDebug() <<  "evt->scenePos() : " <<  evt->scenePos();
 
  for (int i =0; i<items().size();i++) {
     items().value(i)->show();
@@ -39,19 +39,19 @@ void SceneArea::mousePressEvent(QGraphicsSceneMouseEvent* evt) {
 //    _item->setPos( _item->pos());
     _item->grabMouse();
   }
- 
+
 }
 
-void SceneArea::mouseMoveEvent(QGraphicsSceneMouseEvent* evt) 
+void SceneArea::mouseMoveEvent(QGraphicsSceneMouseEvent* evt)
 {
 //  qDebug() << "Scene::mouseMoveEvent(void)";
   if (_item) {
      _item->setPos(evt->scenePos() - _offset);
   }
-  _endPoint = evt->scenePos(); 
+  _endPoint = evt->scenePos();
 }
 
-void SceneArea::mouseReleaseEvent(QGraphicsSceneMouseEvent* evt) 
+void SceneArea::mouseReleaseEvent(QGraphicsSceneMouseEvent* evt)
 {
   qDebug() << "Scene::mouseReleaseEvent(void)";
   if (_item) {
@@ -74,15 +74,16 @@ void SceneArea::mouseReleaseEvent(QGraphicsSceneMouseEvent* evt)
          break;
          }
       case TOOLS_ID_CIRCLE:{
-        
+
         QGraphicsEllipseItem *  elipse=addEllipse (_startPoint.x(), _startPoint.y(), _endPoint.x() - _startPoint.x(), _endPoint.y() - _startPoint.y());
         elipse->setFlag(QGraphicsItem::ItemIsMovable);
          qDebug() << "Elipse";
          break;
       }
-       
+
     };
-    
+    update();
+
  }
  _endPoint = evt->scenePos();
   qDebug() << items().size();
@@ -97,8 +98,7 @@ void SceneArea::clearScene(){
   qDebug()<< "Clear";
   for (QGraphicsItem * item : items() ){
     removeItem(item);
-    
-  }
-  
-}
 
+  }
+
+}
