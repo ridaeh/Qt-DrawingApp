@@ -18,6 +18,7 @@
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
 #include <QFileDialog>
+#include <QColorDialog>
 #include <QDir>
 #include "enums.h"
 #include "scene_area.h"
@@ -36,14 +37,22 @@ Q_OBJECT
    void _connectSignals(void);
 
 
-   QMenu *_fileMenu, *_toolMenu, *_editMenu, *_helpMenu,*_styleMenu;
+   QMenu *_fileMenu, *_toolMenu, *_editMenu, *_helpMenu,*_styleMenu,
+        *_penStyleMenu,*_penWidthMenu,*_penMenu,*_brushMenu;
    QToolBar *_toolBar;
    QAction *_newAction, *_exitAction , *_saveAction,*_saveAsAction,*_openAction;
    QAction *_aboutAction, *_aboutQtAction;
-   QAction *_freehandAct, *_lineAct,*_rectangleAct,*_elipseAct,*_polygonAct,*_textAct;
+   QAction *_freehandAct, *_lineAct,*_rectangleAct,*_elipseAct,*_polygonAct,
+          *_textAct;
+   QAction *_colorPenAction,
+     *_smallPenAction,
+     *_mediumPenAction,
+     *_largePenAction,
+     *_solidePenAction,
+     *_dotPenAction;
+   QActionGroup *_toolsQag,*_penStyleQag,*_penWidthQag;
+   QSignalMapper *_signalMapper,*_styleSigPenMapper,*_widthSigPenMapper;
 
-   QActionGroup *_toolsQag;
-   QSignalMapper *_signalMapper;
   private slots :
      void _newFile();
      int _saveFile(void);
@@ -51,7 +60,12 @@ Q_OBJECT
      void _exit();
      void _about();
      void _aboutQt();
+     void _selectPenColor(void);
+     void _showContextMenu();
   signals:
    void toolMapped(int digit);
+   void penStyleMapped(int style);
+   void penWidthMapped(int width);
+   void setPenColor(QColor color);
 };
 #endif

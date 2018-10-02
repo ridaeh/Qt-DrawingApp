@@ -22,31 +22,39 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       7,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
+       4,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       18,   12,   11,   11, 0x05,
+      40,   34,   11,   11, 0x05,
+      66,   60,   11,   11, 0x05,
+      92,   86,   11,   11, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      34,   11,   11,   11, 0x08,
-      49,   11,   45,   11, 0x08,
-      61,   11,   45,   11, 0x08,
-      73,   11,   11,   11, 0x08,
-      81,   11,   11,   11, 0x08,
-      90,   11,   11,   11, 0x08,
+     112,   11,   11,   11, 0x08,
+     127,   11,  123,   11, 0x08,
+     139,   11,  123,   11, 0x08,
+     151,   11,   11,   11, 0x08,
+     159,   11,   11,   11, 0x08,
+     168,   11,   11,   11, 0x08,
+     179,   11,   11,   11, 0x08,
+     197,   11,   11,   11, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0digit\0toolMapped(int)\0"
+    "style\0penStyleMapped(int)\0width\0"
+    "penWidthMapped(int)\0color\0setPenColor(QColor)\0"
     "_newFile()\0int\0_saveFile()\0_openFile()\0"
     "_exit()\0_about()\0_aboutQt()\0"
+    "_selectPenColor()\0_showContextMenu()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -56,14 +64,19 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         switch (_id) {
         case 0: _t->toolMapped((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 1: _t->_newFile(); break;
-        case 2: { int _r = _t->_saveFile();
+        case 1: _t->penStyleMapped((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 2: _t->penWidthMapped((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: _t->setPenColor((*reinterpret_cast< QColor(*)>(_a[1]))); break;
+        case 4: _t->_newFile(); break;
+        case 5: { int _r = _t->_saveFile();
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
-        case 3: { int _r = _t->_openFile();
+        case 6: { int _r = _t->_openFile();
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
-        case 4: _t->_exit(); break;
-        case 5: _t->_about(); break;
-        case 6: _t->_aboutQt(); break;
+        case 7: _t->_exit(); break;
+        case 8: _t->_about(); break;
+        case 9: _t->_aboutQt(); break;
+        case 10: _t->_selectPenColor(); break;
+        case 11: _t->_showContextMenu(); break;
         default: ;
         }
     }
@@ -101,9 +114,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 7)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 7;
+        _id -= 12;
     }
     return _id;
 }
@@ -113,5 +126,26 @@ void MainWindow::toolMapped(int _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
+}
+
+// SIGNAL 1
+void MainWindow::penStyleMapped(int _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 1, _a);
+}
+
+// SIGNAL 2
+void MainWindow::penWidthMapped(int _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 2, _a);
+}
+
+// SIGNAL 3
+void MainWindow::setPenColor(QColor _t1)
+{
+    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 3, _a);
 }
 QT_END_MOC_NAMESPACE

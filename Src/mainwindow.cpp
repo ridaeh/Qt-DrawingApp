@@ -15,6 +15,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   view->setScene(_area);
   setCentralWidget(view);
   statusBar()->showMessage(tr("Ready"));
+  _styleSigPenMapper=new QSignalMapper(this);
+  _styleSigPenMapper->setMapping(_dotPenAction, DOTS_PEN);
+  _styleSigPenMapper->setMapping(_solidePenAction, SOLIDE_PEN);
+
+  _widthSigPenMapper=new QSignalMapper(this);
+  _widthSigPenMapper->setMapping(_smallPenAction,SMALL_PEN);
+  _widthSigPenMapper->setMapping(_mediumPenAction, MEDIUM_PEN);
+  _widthSigPenMapper->setMapping(_largePenAction, LARGE_PEN);
 
   _signalMapper = new QSignalMapper(this);
   _signalMapper->setMapping(_freehandAct, TOOLS_ID_FREEHAND);
@@ -31,6 +39,10 @@ void MainWindow::_createMenus(void) {
  _fileMenu = menubar->addMenu( tr("&File") );
  _toolMenu = menubar->addMenu("&Tool");
  _styleMenu=menubar->addMenu(tr("&Style"));
+ _penMenu=_styleMenu->addMenu(tr("&Pen"));
+ _penStyleMenu=_penMenu->addMenu(tr("&Style"));
+ _penWidthMenu=_penMenu->addMenu(tr("&Width"));
+ _brushMenu=_styleMenu->addMenu(tr("&Brush"));
  _helpMenu = menubar->addMenu( tr("&Help") );
 }
 
@@ -75,6 +87,9 @@ void MainWindow::_createActions(void) {
 
  //create tool actions
   _toolsQag = new QActionGroup( this );
+  _penStyleQag=new QActionGroup( this );
+  _penWidthQag=new QActionGroup( this );
+
   _freehandAct = new QAction(tr("&Freehand"),  this);
   _lineAct = new QAction(tr("&Line"), this);
   _rectangleAct= new QAction(tr("&Rectangle"), this);
@@ -88,6 +103,25 @@ void MainWindow::_createActions(void) {
   _textAct->setCheckable(true);
   _freehandAct->setCheckable(true);
   _lineAct->setCheckable(true);
+  _lineAct->setChecked(true);
+
+
+  //----------------------------------------------------------------//
+
+  _colorPenAction=new QAction(tr("&Color"),this);
+  _smallPenAction=new QAction(tr("&Small Pen"),this);
+  _mediumPenAction=new QAction(tr("&Medium Pen"),this);
+  _largePenAction=new QAction(tr("&Large Pen"),this);
+  _solidePenAction=new QAction(tr("&Solide Line"),this);
+  _dotPenAction=new QAction(tr("&Dot Line"),this);
+
+  _smallPenAction->setCheckable(true);
+  _smallPenAction->setChecked(true);
+  _mediumPenAction->setCheckable(true);
+  _largePenAction->setCheckable(true);
+  _solidePenAction->setCheckable(true);
+  _solidePenAction->setChecked(true);
+  _dotPenAction->setCheckable(true);
 }
 
 void MainWindow::_connectActions(void) {
@@ -117,6 +151,23 @@ void MainWindow::_connectActions(void) {
  _toolMenu->addAction(_elipseAct);
  //_toolMenu->addAction(_polygonAct);
  //_toolMenu->addAction(_textAct);
+
+ _penMenu->addAction(_colorPenAction);
+ _penWidthMenu->addAction(_smallPenAction);
+ _penWidthMenu->addAction(_mediumPenAction);
+ _penWidthMenu->addAction(_largePenAction);
+
+ _penStyleMenu->addAction(_solidePenAction);
+  _penStyleMenu->addAction(_dotPenAction);
+
+
+ _penWidthQag->addAction(_smallPenAction);
+ _penWidthQag->addAction(_mediumPenAction);
+ _penWidthQag->addAction(_largePenAction);
+
+ _penStyleQag->addAction(_dotPenAction);
+ _penStyleQag->addAction(_solidePenAction);
+
 }
 
 void MainWindow::_connectSignals(void) {
@@ -125,6 +176,7 @@ void MainWindow::_connectSignals(void) {
  connect( _openAction, SIGNAL(triggered( )), this, SLOT(_openFile( )) );
  connect(_aboutAction, SIGNAL(triggered()), this, SLOT(_about()));
  connect(_aboutQtAction, SIGNAL(triggered()), this, SLOT(_aboutQt()));
+connect(_exitAction, SIGNAL(triggered()), this, SLOT(_exit()));
 
  connect(_freehandAct,SIGNAL(activated()),_signalMapper, SLOT(map()));
  connect(_lineAct,SIGNAL(activated()),_signalMapper, SLOT(map()));
@@ -135,6 +187,22 @@ void MainWindow::_connectSignals(void) {
 
  connect(_signalMapper,SIGNAL(mapped(int)), this, SIGNAL(toolMapped(int)));
  connect(this, SIGNAL(toolMapped(int)), _area, SLOT(setCurrentTool(int)) );
+
+ connect(_smallPenAction,SIGNAL(triggered()),_widthSigPenMapper, SLOT(map()));
+ connect(_largePenAction,SIGNAL(triggered()),_widthSigPenMapper, SLOT(map()));
+ connect(_mediumPenAction,SIGNAL(triggered()),_widthSigPenMapper, SLOT(map()));
+
+ connect(_dotPenAction,SIGNAL(triggered()),_styleSigPenMapper, SLOT(map()));
+ connect(_solidePenAction,SIGNAL(triggered()),_styleSigPenMapper, SLOT(map()));
+
+ connect(_widthSigPenMapper,SIGNAL(mapped(int)), this, SIGNAL(penStyleMapped(int)));
+ connect(this, SIGNAL(penStyleMapped(int)), _area, SLOT(setCurrentPenStyle(int)) );
+ connect(_widthSigPenMapper,SIGNAL(mapped(int)), this, SIGNAL(penWidthMapped(int)));
+ connect(this, SIGNAL(penWidthMapped(int)), _area, SLOT(setCurrentPenWidth(int)) );
+
+ connect(_colorPenAction, SIGNAL(triggered()), this, SLOT(_selectPenColor()));
+ connect(this, SIGNAL(setPenColor(QColor)), _area, SLOT(setCurrentPenColor(QColor)));
+
 }
 
 void MainWindow::_newFile(void) {
@@ -180,6 +248,7 @@ void MainWindow::_newFile(void) {
 
 void MainWindow::_exit(void) {
 qDebug()<< "MainWindow::_exit(void)" ;
+exit(0);
 }
 
 
@@ -352,4 +421,14 @@ int MainWindow::_openFile(void){
   }
   fileRead.close();
   return 0;
+}
+void MainWindow::_selectPenColor(){
+  emit setPenColor(QColorDialog::getColor());
+}
+void MainWindow::_showContextMenu()
+{
+    QMenu menu(this);
+    menu.addMenu(_toolMenu);
+    menu.addMenu(_styleMenu);
+    menu.exec(QCursor::pos());
 }
