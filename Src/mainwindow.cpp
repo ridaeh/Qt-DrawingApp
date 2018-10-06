@@ -31,6 +31,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
   _signalMapper->setMapping(_elipseAct, TOOLS_ID_CIRCLE);
   _signalMapper->setMapping(_polygonAct, TOOLS_ID_POLYGON);
   _signalMapper->setMapping(_textAct, TOOLS_ID_TEXT);
+
+  _brushStyleSigMapper = new QSignalMapper(this);
+  _brushStyleSigMapper->setMapping(_noBrushAction, NO_BRUSH);
+  _brushStyleSigMapper->setMapping(_solideBrushAction, SOLIDE_PATTERN);
+  _brushStyleSigMapper->setMapping(_denseBrushAction, DENSE_PATTERN);
+
   _connectSignals();
 }
 
@@ -43,7 +49,8 @@ void MainWindow::_createMenus(void) {
  _penStyleMenu=_penMenu->addMenu(tr("&Style"));
  _penWidthMenu=_penMenu->addMenu(tr("&Width"));
  _brushMenu=_styleMenu->addMenu(tr("&Brush"));
- _helpMenu = menubar->addMenu( tr("&Help") );
+ _brushStyleMenu=_brushMenu->addMenu(tr("&Style"));
+  _helpMenu = menubar->addMenu( tr("&Help") );
 }
 
 void MainWindow::_createToolbars(void) {
@@ -89,6 +96,7 @@ void MainWindow::_createActions(void) {
   _toolsQag = new QActionGroup( this );
   _penStyleQag=new QActionGroup( this );
   _penWidthQag=new QActionGroup( this );
+  _brushStyleQag=new QActionGroup( this );
 
   _freehandAct = new QAction(tr("&Freehand"),  this);
   _lineAct = new QAction(tr("&Line"), this);
@@ -96,6 +104,11 @@ void MainWindow::_createActions(void) {
   _elipseAct= new QAction(tr("&Elipse"), this);
   _polygonAct= new QAction(tr("&Polygon"), this);
   _textAct= new QAction(tr("&Text"), this);
+
+  _brushColorAction=new QAction(tr("&Color"),this);
+  _noBrushAction= new QAction(tr("&No Brush"), this);
+  _solideBrushAction= new QAction(tr("&Solide Brush"), this);
+  _denseBrushAction= new QAction(tr("&Dense Brush"), this);
 
   _rectangleAct->setCheckable(true);
   _elipseAct->setCheckable(true);
@@ -106,6 +119,11 @@ void MainWindow::_createActions(void) {
   _lineAct->setChecked(true);
 
 
+  _noBrushAction->setCheckable(true);
+  _noBrushAction->setChecked(true);
+  _solideBrushAction->setCheckable(true);
+  _denseBrushAction->setCheckable(true);
+  _eraseAction=new QAction(tr("&Erase"),this);
   //----------------------------------------------------------------//
 
   _colorPenAction=new QAction(tr("&Color"),this);
@@ -143,14 +161,14 @@ void MainWindow::_connectActions(void) {
  _toolsQag->addAction(_rectangleAct);
  _toolsQag->addAction(_elipseAct);
 // _toolsQag->addAction(_polygonAct);
-// _toolsQag->addAction(_textAct);
+ _toolsQag->addAction(_textAct);
 
 // _toolMenu->addAction(_freehandAct);
  _toolMenu->addAction(_lineAct);
  _toolMenu->addAction(_rectangleAct);
  _toolMenu->addAction(_elipseAct);
  //_toolMenu->addAction(_polygonAct);
- //_toolMenu->addAction(_textAct);
+ _toolMenu->addAction(_textAct);
 
  _penMenu->addAction(_colorPenAction);
  _penWidthMenu->addAction(_smallPenAction);
@@ -168,6 +186,14 @@ void MainWindow::_connectActions(void) {
  _penStyleQag->addAction(_dotPenAction);
  _penStyleQag->addAction(_solidePenAction);
 
+  _brushMenu->addAction(_brushColorAction);
+  _brushStyleMenu->addAction(_noBrushAction);
+  _brushStyleMenu->addAction(_solideBrushAction);
+  _brushStyleMenu->addAction(_denseBrushAction);
+
+ _brushStyleQag->addAction(_noBrushAction);
+ _brushStyleQag->addAction(_solideBrushAction);
+ _brushStyleQag->addAction(_denseBrushAction);
 }
 
 void MainWindow::_connectSignals(void) {
@@ -203,6 +229,17 @@ connect(_exitAction, SIGNAL(triggered()), this, SLOT(_exit()));
  connect(_colorPenAction, SIGNAL(triggered()), this, SLOT(_selectPenColor()));
  connect(this, SIGNAL(setPenColor(QColor)), _area, SLOT(setCurrentPenColor(QColor)));
 
+ connect(_brushColorAction, SIGNAL(triggered()), this, SLOT(_selectBrushColor()));
+ connect(this, SIGNAL(setBrushColor(QColor)), _area, SLOT(setCurrentBrushColor(QColor)));
+
+ connect(_brushStyleSigMapper,SIGNAL(mapped(int)), this, SIGNAL(brushStyleMapped(int)));
+ connect(this, SIGNAL(brushStyleMapped(int)), _area, SLOT(setCurrentBrushStyle(int)) );
+
+ connect(_noBrushAction,SIGNAL(triggered()),_brushStyleSigMapper, SLOT(map()));
+ connect(_solideBrushAction,SIGNAL(triggered()),_brushStyleSigMapper, SLOT(map()));
+ connect(_denseBrushAction,SIGNAL(triggered()),_brushStyleSigMapper, SLOT(map()));
+
+ connect(_eraseAction,SIGNAL(triggered()),_area, SLOT(eraseItem()));
 }
 
 void MainWindow::_newFile(void) {
@@ -248,7 +285,29 @@ void MainWindow::_newFile(void) {
 
 void MainWindow::_exit(void) {
 qDebug()<< "MainWindow::_exit(void)" ;
-exit(0);
+ int ret = QMessageBox::warning(this, tr("Exit"),
+                                tr("The document has been modified.\n"
+                                   "Do you want to save your changes?"),
+                                 QMessageBox::Cancel |QMessageBox::Save
+                                | QMessageBox::Close,
+                                QMessageBox::Cancel);
+ switch (ret) {
+   case QMessageBox::Save:
+       if(_saveFile()!=-1)
+         exit(0);
+
+       break;
+   case QMessageBox::Close:{
+       exit(0);
+
+       break;
+       }
+   case QMessageBox::Cancel:
+
+       break;
+
+  }
+
 }
 
 
@@ -285,7 +344,7 @@ int MainWindow::_saveFile(){
     xmlWriter.writeAttribute("version", "v1.0");
     xmlWriter.writeStartElement("GraphicsItemList");
     qreal width, height, x, y;
-    for (int i =0; i< _area->items().size();i++) {
+    for (int i =_area->items().size()-1; i>=0 ;i--) {
             xmlWriter.writeStartElement("GraphicsItem");
             int number=_area->items().value(i)->type();
             xmlWriter.writeAttribute("type", QString::number(number));
@@ -303,7 +362,10 @@ int MainWindow::_saveFile(){
                   xmlWriter.writeAttribute("y", QString::number(y));
                   xmlWriter.writeAttribute("w", QString::number(width));
                   xmlWriter.writeAttribute("h", QString::number(height));
-                  xmlWriter.writeAttribute("style", QString::number(line->pen().style()));
+                  xmlWriter.writeAttribute("pStyle", QString::number(line->pen().style()));
+                  xmlWriter.writeAttribute("pWidth", QString::number(line->pen().width()));
+                  xmlWriter.writeAttribute("pColor", line->pen().color().name());
+
                 }
                  break;
               case 3 :
@@ -319,7 +381,11 @@ int MainWindow::_saveFile(){
                   xmlWriter.writeAttribute("y", QString::number(y));
                   xmlWriter.writeAttribute("w", QString::number(width));
                   xmlWriter.writeAttribute("h", QString::number(height));
-                  xmlWriter.writeAttribute("style", QString::number(rect->pen().style()));
+                  xmlWriter.writeAttribute("pStyle", QString::number(rect->pen().style()));
+                  xmlWriter.writeAttribute("pWidth", QString::number(rect->pen().widthF()));
+                  xmlWriter.writeAttribute("pColor", rect->pen().color().name());
+                  xmlWriter.writeAttribute("bColor", rect->brush().color().name());
+                  xmlWriter.writeAttribute("bStyle", QString::number(rect->brush().style()));
                 }
                  break;
               case 8:{
@@ -348,7 +414,12 @@ int MainWindow::_saveFile(){
                 xmlWriter.writeAttribute("y", QString::number(y));
                 xmlWriter.writeAttribute("w", QString::number(width));
                 xmlWriter.writeAttribute("h", QString::number(height));
-                xmlWriter.writeAttribute("style", QString::number(ellipse->pen().style()));
+                xmlWriter.writeAttribute("pStyle", QString::number(ellipse->pen().style()));
+                  xmlWriter.writeAttribute("pWidth", QString::number(ellipse->pen().widthF()));
+                  xmlWriter.writeAttribute("pColor", ellipse->pen().color().name());
+                  xmlWriter.writeAttribute("bColor", ellipse->brush().color().name());
+                  xmlWriter.writeAttribute("bStyle", QString::number(ellipse->brush().style()));
+
               }
               break;
       }
@@ -376,28 +447,49 @@ int MainWindow::_openFile(void){
      if(xmlReader.isStartElement()) {
        if ( xmlReader.name()== "GraphicsItem") {
            qDebug() << "graphics";
-           qDebug() << xmlReader.attributes().value("type").toString().toInt();
+
 
              int x=xmlReader.attributes().value("x").toString().toInt();
              int y=xmlReader.attributes().value("y").toString().toInt();
              int w=xmlReader.attributes().value("w").toString().toInt();
              int h=xmlReader.attributes().value("h").toString().toInt();
-             int style=xmlReader.attributes().value("style").toString().toInt();
-             qDebug() << "read" << x << y<< w << h << style;
+             int pstyle=xmlReader.attributes().value("pStyle").toString().toInt();
+             int pWidth=xmlReader.attributes().value("pWidth").toString().toInt();
+             QString pColor=xmlReader.attributes().value("pColor").toString();
+             int bStyle=xmlReader.attributes().value("bStyle").toString().toInt();
+             QString bColor=xmlReader.attributes().value("bColor").toString();
+
+
              switch (xmlReader.attributes().value("type").toString().toInt()) {
                  case 6:{
-                     QGraphicsLineItem *ligne = _area->addLine(x,y,w,h);
-                     if (style == 0) {
-                       ligne->pen().setStyle(Qt::DashDotDotLine);
-                     }
+                     QPen pen=QPen();
+                     if (pstyle == 1) {
+                       pen.setStyle(Qt::SolidLine);
+                     }else pen.setStyle(Qt::DotLine);
+                     pen.setWidth(pWidth);
+
+                     pen.setColor(QColor(pColor));
+                     _area->addLine(x,y,w,h,pen);
                     }
                     break;
                   case 3:
                   {
-                      QGraphicsRectItem *rect = _area->addRect(x,y,w,h);
-                      if (style == 0) {
-                        rect->pen().setStyle(Qt::DashDotDotLine);
-                      }
+                     QPen pen=QPen();
+                     if (pstyle == 1) {
+                       pen.setStyle(Qt::SolidLine);
+                     }else pen.setStyle(Qt::DotLine);
+                     pen.setWidth(pWidth);
+                     QBrush brush=QBrush();
+                     pen.setColor(QColor(pColor));
+                     brush.setColor(QColor(bColor));
+                     if (bStyle == 1) {
+                       brush.setStyle(Qt::SolidPattern);
+                     }else if (bStyle == 4)
+                       brush.setStyle(Qt::Dense3Pattern);
+                      else
+                        brush.setStyle(Qt::NoBrush);
+                      _area->addRect(x,y,w,h,pen,brush);
+
                   }
                   break;
                   case 8:{
@@ -406,17 +498,29 @@ int MainWindow::_openFile(void){
                     text->setVisible(true);
                   }break;
                   case 4:{
-                    QGraphicsEllipseItem *ellipse = _area->addEllipse(x,y,w,h);
-                    if (style == 0) {
-                      ellipse->pen().setStyle(Qt::DashDotDotLine);
-                    }
+                      QPen pen=QPen();
+                     if (pstyle == 1) {
+                       pen.setStyle(Qt::SolidLine);
+                     }else pen.setStyle(Qt::DotLine);
+                     pen.setWidth(pWidth);
+                     QBrush brush=QBrush();
+                     pen.setColor(QColor(pColor));
+                     brush.setColor(QColor(bColor));
+                     if (bStyle == 1) {
+                       brush.setStyle(Qt::SolidPattern);
+                     }else if (bStyle == 4)
+                       brush.setStyle(Qt::Dense3Pattern);
+                      else
+                        brush.setStyle(Qt::NoBrush);
+                     _area->addEllipse(x,y,w,h,pen,brush);
+
                   }break;
              }
 
-             _area->update();
+
            }
        }
-
+     _area->update();
       xmlReader.readNext();
   }
   fileRead.close();
@@ -425,10 +529,15 @@ int MainWindow::_openFile(void){
 void MainWindow::_selectPenColor(){
   emit setPenColor(QColorDialog::getColor());
 }
+void MainWindow::_selectBrushColor(){
+  emit setBrushColor(QColorDialog::getColor());
+}
 void MainWindow::_showContextMenu()
 {
     QMenu menu(this);
     menu.addMenu(_toolMenu);
     menu.addMenu(_styleMenu);
+    menu.addSeparator();
+    menu.addAction(_eraseAction);
     menu.exec(QCursor::pos());
 }

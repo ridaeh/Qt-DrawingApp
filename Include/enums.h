@@ -34,4 +34,10 @@ enum menusID{
 	STYLE_MENU_ID_FONT
 };
 
+enum brushStyle{
+	NO_BRUSH,
+	SOLIDE_PATTERN,
+	DENSE_PATTERN
+
+};
 #endif

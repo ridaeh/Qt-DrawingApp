@@ -22,7 +22,7 @@ static const uint qt_meta_data_SceneArea[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -37,6 +37,9 @@ static const uint qt_meta_data_SceneArea[] = {
       49,   10,   10,   10, 0x0a,
       73,   10,   10,   10, 0x0a,
       97,   10,   10,   10, 0x0a,
+     124,   10,   10,   10, 0x0a,
+     153,   10,   10,   10, 0x0a,
+     179,   10,   10,   10, 0x0a,
 
        0        // eod
 };
@@ -46,6 +49,8 @@ static const char qt_meta_stringdata_SceneArea[] = {
     "setCurrentTool(int)\0setCurrentPenStyle(int)\0"
     "setCurrentPenWidth(int)\0"
     "setCurrentPenColor(QColor)\0"
+    "setCurrentBrushColor(QColor)\0"
+    "setCurrentBrushStyle(int)\0eraseItem()\0"
 };
 
 void SceneArea::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -59,6 +64,9 @@ void SceneArea::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 2: _t->setCurrentPenStyle((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 3: _t->setCurrentPenWidth((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 4: _t->setCurrentPenColor((*reinterpret_cast< QColor(*)>(_a[1]))); break;
+        case 5: _t->setCurrentBrushColor((*reinterpret_cast< QColor(*)>(_a[1]))); break;
+        case 6: _t->setCurrentBrushStyle((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->eraseItem(); break;
         default: ;
         }
     }
@@ -96,9 +104,9 @@ int SceneArea::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 8;
     }
     return _id;
 }

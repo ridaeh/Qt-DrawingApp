@@ -38,7 +38,7 @@ Q_OBJECT
 
 
    QMenu *_fileMenu, *_toolMenu, *_editMenu, *_helpMenu,*_styleMenu,
-        *_penStyleMenu,*_penWidthMenu,*_penMenu,*_brushMenu;
+        *_penStyleMenu,*_penWidthMenu,*_penMenu,*_brushMenu,*_brushStyleMenu;
    QToolBar *_toolBar;
    QAction *_newAction, *_exitAction , *_saveAction,*_saveAsAction,*_openAction;
    QAction *_aboutAction, *_aboutQtAction;
@@ -49,9 +49,12 @@ Q_OBJECT
      *_mediumPenAction,
      *_largePenAction,
      *_solidePenAction,
-     *_dotPenAction;
-   QActionGroup *_toolsQag,*_penStyleQag,*_penWidthQag;
-   QSignalMapper *_signalMapper,*_styleSigPenMapper,*_widthSigPenMapper;
+     *_dotPenAction,
+     *_eraseAction,
+     *_noBrushAction,*_solideBrushAction,*_denseBrushAction,*_brushColorAction;
+   QActionGroup *_toolsQag,*_penStyleQag,*_penWidthQag,*_brushStyleQag;
+   QSignalMapper *_signalMapper,*_styleSigPenMapper,*_widthSigPenMapper,
+                *_brushStyleSigMapper;
 
   private slots :
      void _newFile();
@@ -61,11 +64,16 @@ Q_OBJECT
      void _about();
      void _aboutQt();
      void _selectPenColor(void);
+     void _selectBrushColor(void);
      void _showContextMenu();
   signals:
    void toolMapped(int digit);
    void penStyleMapped(int style);
    void penWidthMapped(int width);
    void setPenColor(QColor color);
+   void setBrushColor(QColor color);
+   void brushStyleMapped(int style);
+
+
 };
 #endif

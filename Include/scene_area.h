@@ -11,6 +11,8 @@
 #include <QGraphicsEffect>
 #include <QGraphicsSceneMouseEvent>
 
+#include <QString>
+#include <QKeyEvent>
 #include <QDebug>
 #include <QColor>
 #include <QPen>
@@ -32,12 +34,17 @@ class SceneArea : public QGraphicsScene
     void setCurrentPenStyle(int);
     void setCurrentPenWidth(int);
     void setCurrentPenColor(QColor);
+    void setCurrentBrushColor(QColor);
+    void setCurrentBrushStyle(int);
+    void eraseItem();
   signals:
     void showContextMenu();
   protected :
     void mousePressEvent(QGraphicsSceneMouseEvent* );
     void mouseMoveEvent(QGraphicsSceneMouseEvent* );
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* );
+    void keyPressEvent(QKeyEvent* event);
+
   private :
   QColor _color, _fillColor;
    int _currentTool;
@@ -45,5 +52,9 @@ class SceneArea : public QGraphicsScene
    QGraphicsItem * _item;
    QPolygon _polygon;
    QPen pen;
+   QBrush brush;
+   QString text;
+   bool _createItem;
+   bool _isCreationFinished;
 };
 #endif
