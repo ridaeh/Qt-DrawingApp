@@ -440,7 +440,7 @@ int MainWindow::_openFile(void){
     {
             return -1;
     }
-
+    _area->clearScene();
    QXmlStreamReader xmlReader;
    xmlReader.setDevice(&fileRead);
    while (!xmlReader.atEnd()) {

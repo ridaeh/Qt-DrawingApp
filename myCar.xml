@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scene version="v1.0">
+    <GraphicsItemList>
+        <GraphicsItem type="3" x="101" y="273" w="420" h="169" pStyle="3" pWidth="5" pColor="#000000" bColor="#0000ff" bStyle="1"/>
+        <GraphicsItem type="3" x="172" y="189" w="274" h="84" pStyle="3" pWidth="5" pColor="#000000" bColor="#0000ff" bStyle="1"/>
+        <GraphicsItem type="4" x="452" y="469" w="-77" h="-61" pStyle="3" pWidth="5" pColor="#000000" bColor="#ff0000" bStyle="1"/>
+        <GraphicsItem type="4" x="249" y="473" w="-76" h="-72" pStyle="3" pWidth="5" pColor="#000000" bColor="#ff0000" bStyle="1"/>
+        <GraphicsItem type="8" x="252" y="134" txt="HAMDANI RIDAE"/>
+    </GraphicsItemList>
+</Scene>
