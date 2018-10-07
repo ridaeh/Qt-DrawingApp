@@ -49,8 +49,8 @@ class SceneArea : public QGraphicsScene
   QColor _color, _fillColor;
    int _currentTool;
    QPointF  _startPoint,_endPoint, _offset;
-   QGraphicsItem * _item;
-   QPolygon _polygon;
+   QGraphicsItem * _item,*_itemToDelete;
+   QVector<QPointF> *_polygonPoints;
    QPen pen;
    QBrush brush;
    QString text;

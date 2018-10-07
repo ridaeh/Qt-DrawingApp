@@ -15,6 +15,7 @@ _currentTool=TOOLS_ID_LINE;
   addPolygon(_polygon);
 */
   _item=NULL;
+  _itemToDelete=NULL;
   connect(this,SIGNAL(showContextMenu()),parent,SLOT(_showContextMenu()));
   _createItem=false;
   _isCreationFinished=true;
@@ -27,7 +28,8 @@ void SceneArea::mousePressEvent(QGraphicsSceneMouseEvent* evt) {
   qDebug() <<  "evt->scenePos() : " <<  evt->scenePos();
   if(evt->button()==Qt::RightButton){
     _createItem=false;
- 	_isCreationFinished=true;
+   	_isCreationFinished=true;
+    _itemToDelete=itemAt(evt->scenePos());
     emit showContextMenu();
     return;
   }
@@ -107,6 +109,7 @@ void SceneArea::mouseMoveEvent(QGraphicsSceneMouseEvent* evt)
 			  }
 
 
+
 			};
 			_createItem=false;
 			_isCreationFinished=false;
@@ -139,6 +142,7 @@ void SceneArea::mouseMoveEvent(QGraphicsSceneMouseEvent* evt)
 				 break;
 			  }
 
+
 			};
 			update();
 	 }
@@ -155,11 +159,10 @@ void SceneArea::mouseReleaseEvent(QGraphicsSceneMouseEvent* evt)
   }
   if(_currentTool!=TOOLS_ID_TEXT){
    _createItem=false;
-	_isCreationFinished=true;
+	 _isCreationFinished=true;
   }
 
- _endPoint = evt->scenePos();
-  qDebug() << items().size();
+
 }
 
 void SceneArea::setCurrentTool(int tool) {
@@ -236,8 +239,10 @@ void SceneArea::keyPressEvent(QKeyEvent* event){
 
 }
 void SceneArea::eraseItem(){
-  if(_item){
-    removeItem(_item);
+  if(_itemToDelete){
+    removeItem(_itemToDelete);
+    qDebug()<<"de";
+    _itemToDelete=NULL;
     update();
   }
 }
